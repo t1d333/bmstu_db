@@ -168,8 +168,8 @@
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.6\textwidth]{Diagram1} % Укажите имя файла изображения и его ширину
-\caption{Модель “Сущность-связь”} % Здесь вы можете указать название рисунка или его описание.
+\includegraphics[width=0.6\textwidth]{Diagram1} 
+\caption{Модель “Сущность-связь”} 
 \label{fig:er_model}
 \end{figure}
 
@@ -189,7 +189,7 @@
 \hline
 UserID & int & Primary & NOT NULL & Surrogate Key \\
 \hline
-Email & nvarchar (60) & Alternate & NOT NULL & Unique (AK1.1) \\
+Email & nvarchar (256) & Alternate & NOT NULL & Unique (AK1.1) \\
 \hline
 Name & nvarchar (80) & No & NOT NULL & \\
 \hline
@@ -218,7 +218,7 @@ UserID & int & Foreign & NOT NULL & \\
 \hline
 Title & nvarchar (100) & No & NOT NULL & \\
 \hline
-Description & text & No & NOT NULL & \\
+Description & nvarchar(max) & No & NOT NULL & \\
 \hline
 CreatedAt & datetime & No & NOT NULL & \\
 \hline
@@ -246,9 +246,9 @@ QuestionNum & int & Foreign & NOT NULL & \\
 \hline
 Rating & int & No & NOT NULL & \\
 \hline
-AttachmentCode & text & No & NULL & \\
+AttachmentCode & nvarchar(max) & No & NULL & \\
 \hline
-Text & text & No & NOT NULL & \\
+Text & nvarchar(max) & No & NOT NULL & \\
 \hline
 CreatedAt & datetime & No & NOT NULL & \\
 \hline
@@ -383,6 +383,7 @@ User к Mark идентифицирующая связь — M-O 1:N;
 \end{tabular}
 \end{table}
 
+\newpage
 
 Tag к TagQuestion идентифицирующая связь — M-M 1:N;
 
@@ -393,11 +394,11 @@ Tag к TagQuestion идентифицирующая связь — M-M 1:N;
 \hline
 \textbf{TAG Обязательный родитель} & \textbf{Действия для TAG (родитель)} & \textbf{Действия для TAGQUESTION (ребенок)} \\
 \hline
-	Вставка & - & Получение родителя. \\
+	Вставка & Вставка с помощью транзакции. После вставки Tag необходимо вставить в TagQuestion строку $(TagNum, QuestionNum)$, где TagNum - идентификатор вставленного тега, QuestionNum- идентификатор связанного вопроса& Получение родителя. \\
 \hline
 Изменение первичного или внешнего ключа & Запрещено — суррогатный ключ. & Запрещено — сопряжение. \\
 \hline
-Удаление & Каскадное удаление ребенка. & Возможно только при условии, что остались другие строки таблицы соответствующие тому же вопросу\\
+Удаление & Каскадное удаление ребенка. & Возможно, если при этом удаляемая строка была единственной ссылающейся на TagNum, то удаляется и Tag с соответствующим TagNum \\
 \hline
 \end{tabular}
 \end{table}
@@ -413,7 +414,7 @@ Question к TagQuestion идентифицирующая связь — M-M 1:N;
 \hline
 \textbf{QUESTION Обязательный родитель} & \textbf{Действия для QUESTION (родитель)} & \textbf{Действия для TAGQUESTION (ребенок)} \\
 \hline
-Вставка & Получение тегов соответствующих вопросу и вставка в TagQuestion всех пар ($QuestionNum, TagNum_i$) & Получение родителя. \\
+	Вставка & Вставка с помощью транзакции. После вставки нового вопроса, небходимо добавить в TagQuestion строки вида $(TagNum_i, QuestionNum)$, где $QuestionNum$ идентификатор вставленного вопроса & Получение родителя. \\
 \hline
 Изменение первичного или внешнего ключа & Запрещено — суррогатный ключ. & Запрещено — сопряжение. \\
 \hline
@@ -422,6 +423,7 @@ Question к TagQuestion идентифицирующая связь — M-M 1:N;
 \end{tabular}
 \end{table}
 
+\newpage
 
 Answer к Mark идентифицирующая связь — M-O 1:N;
 
@@ -441,7 +443,6 @@ Answer к Mark идентифицирующая связь — M-O 1:N;
 \end{tabular}
 \end{table}
 
-\newpage
 
 Question к Answer не идентифицирующая связь — M-O 1:N;
 
@@ -460,7 +461,6 @@ Question к Answer не идентифицирующая связь — M-O 1:N;
 \hline
 \end{tabular}
 \end{table}
-
 
 
 

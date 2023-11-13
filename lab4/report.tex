@@ -33,6 +33,18 @@
 \usepackage{minted}
 %----------------------
 
+% Tables
+
+%----------------------
+\usepackage{longtable}
+\usepackage{ragged2e}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{float}
+
+%----------------------
+
 \linespread{1.3}
 \sloppy
 \clubpenalty=10000
@@ -98,11 +110,11 @@
 \vspace{11em}
 
 \begin{center}
-\Large {\bf Лабораторная работа № } \\ 
-\large {\bf по курсу <<>>} \\
+\Large {\bf Лабораторная работа №4} \\ 
+\large {\bf по курсу <<Базы данных>>} \\
 
 % Labname
-\large <<Полиморфизм на основе интерфейсов в языке Java>> \\
+\large <<Преобразование модели семантических объектов в реляционную модель>> \\
 \end{center}\normalsize
 
 \vspace{8em}
@@ -111,7 +123,7 @@
 \begin{flushright}
   {Студент группы ИУ9-51Б Киселев К.А. \hspace*{15pt}\\ 
   \vspace{2ex}
-  Преподаватель Посевин Д. П.\hspace*{15pt}}
+  Преподаватель Вишняков И.Э. \hspace*{15pt}}
 \end{flushright}
 
 \bigskip
@@ -129,5 +141,48 @@
 
 \newpage
 
+
+
+
+\section{Постановка задачи}
+
+\begin{enumerate}
+	\item{Преобразовать модель семантических объектов, созданную в лабораторной работе №2, в реляционную модель согласно процедуре преобразования.}
+	\item{Сопоставить результаты проектирования с использованием модели «сущность-связь» и модели семантических объектов (лабораторные работы №№3,4).}
+	\item{Обосновать различия результатов, выявить и исправить ошибки проектирования.}
+\end{enumerate}
+
+\newpage
+
+\section{Практическая реализация}
+
+В соответствии с правилами преобразования, из созданной ранее модели семантических объектов, представленной на рисунке \ref{fig:som_model}, получили реляционную модель, изображенную на  рисунке \ref{fig:relation_model_lab4}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{Diagram3} 
+\caption{Модель семантических объектов} 
+\label{fig:som_model}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{Diagram1}
+\caption{Реляционная модель, полученная из модели семантических объектов.} 
+\label{fig:relation_model_lab4}
+\end{figure}
+
+На рисунке \ref{fig:relation_model_lab3} представлена полученная на лабораторной работе №3 реляционная модель.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{Diagram2}
+\caption{Реляционная модель, полученная из модели "сущность-связь".} 
+\label{fig:relation_model_lab3}
+\end{figure}
+
+
+Обе реляционные модели на рисунках \ref{fig:relation_model_lab4}–\ref{fig:relation_model_lab3} описывают одну и ту же предметную область. При сравнении результатов проектирования реляционных моделей, полученных из модели «сущность-связь» и модели семантических объектов, различий не было выявлено.
 
 \end{document}
