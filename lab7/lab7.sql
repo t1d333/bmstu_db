@@ -82,7 +82,7 @@ GO
 -- CHECK INDEX
 SELECT *
 FROM sys.indexes
-WHERE object_id = (SELECT object_id FROM sys.objects WHERE name = 'Users');
+WHERE object_id = (SELECT object_id FROM sys.objects WHERE name = 'UsersQuestionsView');
 
 -- SELECT *
 -- FROM sys.dm_db_index_usage_stats;
