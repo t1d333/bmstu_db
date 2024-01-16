@@ -300,5 +300,6 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 
-src/bin
-src/obj
+lab12/src/bin
+lab12/src/obj
+
