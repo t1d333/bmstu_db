@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  lab12app:
+    build:
+      dockerfile: Dockerfile
+    entrypoint: dotnet run .
+  lab12db:
+    image: dbimg
+    ports:
+      - 1433:1433
+  

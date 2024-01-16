@@ -50,10 +50,11 @@ CREATE TABLE Marks
     CONSTRAINT MARK_PK PRIMARY KEY (answer_num, user_id)
 )
 
+DROP TABLE TagQuestion;
 
 CREATE TABLE TagQuestion
 (
-    question_num int NOT NULL REFERENCES Questions (question_num),
+    question_num int NOT NULL REFERENCES Questions (question_num) ON DELETE CASCADE,
     tag_num      int NOT NULL REFERENCES Tags (tag_num),
     CONSTRAINT TAG_QUESTIONS_PK PRIMARY KEY (question_num, tag_num)
 )
@@ -91,7 +92,6 @@ DROP TRIGGER ANSWER_RATING_UPDATE_ON_INSERT_TRIGGER;
 CREATE TRIGGER ANSWER_RATING_UPDATE_ON_INSERT_TRIGGER
     ON Marks
     AFTER INSERT AS
-
     UPDATE Answers
     SET rating = rating + (SELECT SUM(value) FROM inserted WHERE inserted.answer_num = Answers.answer_num)
     WHERE answer_num IN (SELECT answer_num FROM inserted);
@@ -128,7 +128,7 @@ CREATE TRIGGER ANSWER_RATING_UPDATE_ON_DELETE_TRIGGER
     ON Marks
     AFTER DELETE AS
     UPDATE Answers
-    SET rating = rating -  (SELECT SUM(value) FROM deleted WHERE deleted.answer_num = Answers.answer_num)
+    SET rating = rating - (SELECT SUM(value) FROM deleted WHERE deleted.answer_num = Answers.answer_num)
     WHERE answer_num IN (SELECT answer_num FROM deleted);
 GO
 
@@ -155,9 +155,11 @@ BEGIN
 END;
 GO
 
+DROP TRIGGER QUESTION_TAGS_DELETE_TRIGGER;
+
 CREATE TRIGGER QUESTION_TAGS_DELETE_TRIGGER
     ON Questions
-    AFTER DELETE
+    FOR DELETE
     AS
 BEGIN
     DELETE
@@ -198,80 +200,15 @@ CREATE TRIGGER MARK_UPDATE_TRIGGER
 GO
 
 
--- CREATE TRIGGER TAG_QUESTION_DELETE_TRIGGER
---     ON TagQuestion
---     FOR DELETE AS
--- BEGIN
---     DECLARE @question_num int;
---     DECLARE @tag_num int;
---     DECLARE @cur CURSOR;
---     SET @cur = CURSOR FORWARD_ONLY STATIC FOR
---         SELECT question_num, tag_num
---         FROM deleted;
---     OPEN @cur;
---
---     FETCH NEXT FROM @cur INTO @question_num, @tag_num;
---     WHILE (@@FETCH_STATUS = 0)
---         BEGIN
---             IF EXISTS(SELECT question_num FROM Questions WHERE Questions.question_num = @question_num) AND
---                (SELECT COUNT(*) FROM TagQuestion WHERE question_num = @question_num) = 1
---                 THROW 51000, 'It is forbidden to delete last tag', 1;
---             ELSE
---                 DELETE
---                 FROM TagQuestion
---                 WHERE question_num = @question_num
---                   AND tag_num = @tag_num;
---
---             IF NOT EXISTS(SELECT * FROM TagQuestion WHERE tag_num = @tag_num)
---                 DELETE
---                 FROM Tags
---                 WHERE tag_num = @tag_num;
---
---             FETCH NEXT FROM @cur INTO @question_num, @tag_num;
---         END
---
---     CLOSE @cur;
---
--- END
--- GO;
-
-
 CREATE TRIGGER TAG_QUESTION_DELETE_TRIGGER
     ON TagQuestion
-    FOR DELETE AS
+    AFTER DELETE AS
 BEGIN
---     DECLARE @question_num int;
---     DECLARE @tag_num int;
---     DECLARE @cur CURSOR;
---     SET @cur = CURSOR FORWARD_ONLY STATIC FOR
---         SELECT question_num, tag_num
---         FROM deleted;
---     OPEN @cur;
---
---     FETCH NEXT FROM @cur INTO @question_num, @tag_num;
---     WHILE (@@FETCH_STATUS = 0)
---         BEGIN
-                DELETE TagQuestion
-                FROM TagQuestion
-                    INNER JOIN deleted
-                        ON (TagQuestion.tag_num = deleted.tag_num AND TagQuestion.question_num = deleted.question_num ) AS b
-                WHERE (EXISTS(SELECT question_num FROM Questions WHERE Questions.question_num = question_num) AND (SELECT COUNT(*) FROM TagQuestion WHERE question_num = @question_num) = 1);
-
-
-            IF NOT EXISTS(SELECT * FROM TagQuestion WHERE tag_num = @tag_num)
-                DELETE
-                FROM Tags
-                WHERE tag_num = @tag_num;
-
---             FETCH NEXT FROM @cur INTO @question_num, @tag_num;
---         END
---
---     CLOSE @cur;
-
+    DELETE
+    FROM Tags
+    WHERE tag_num in (SELECT tag_num FROM TagQuestion GROUP BY tag_num HAVING count(*) = 0);
 END
 GO;
-
-
 
 
 -- выборки записей (команда SELECT);
@@ -350,7 +287,7 @@ SELECT q.question_num,
        a.created_at
 FROM Questions AS q
          LEFT JOIN Answers AS a
-                    ON q.question_num = a.question_num
+                   ON q.question_num = a.question_num
 GO;
 
 
@@ -500,9 +437,9 @@ END;
 
 DECLARE @tagsarg TagsArg;
 INSERT INTO @tagsarg(tagname)
-VALUES ('Tagname4'),
-       ('Tagname4'),
-       ('Tagname4');
+VALUES ('Tagname1'),
+       ('Tagname2'),
+       ('Tagname3');
 
     EXEC INSERT_NEW_QUESTION @user_id = 1, @title = 'new question123', @description = 'abcdefg22', @tags = @tagsarg
 GO
@@ -510,6 +447,9 @@ GO
 
 SELECT *
 FROM Questions;
+
+DELETE FROM Questions WHERE question_num = 2;
+
 SELECT *
 FROM Tags;
 SELECT *
@@ -521,7 +461,8 @@ FROM TagQuestion;
 INSERT INTO Answers(question_num, user_id, text)
 VALUES (1, 2, 'new answer 1');
 
-SELECT * FROM Answers;
+SELECT *
+FROM Answers;
 -- Marks
 
 DELETE
@@ -538,7 +479,6 @@ FROM Marks;
 SELECT rating
 FROM Answers
 WHERE answer_num = 1
-
 
 
 -- Tags
@@ -572,9 +512,9 @@ GO;
 EXEC INSERT_NEW_TAG @tagname = 'new tag 3', @question_num = 1
 GO;
 
-
 SELECT *
 FROM Tags;
+
 SELECT *
 FROM TagQuestion;
 
